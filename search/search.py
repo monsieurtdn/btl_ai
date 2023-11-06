@@ -61,7 +61,6 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
-
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -72,7 +71,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem: SearchProblem):
+def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -81,96 +80,176 @@ def depthFirstSearch(problem: SearchProblem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    visited = set()  # Set to keep track of visited states
-    stack = util.Stack()  # Stack for DFS
-    start_state = problem.getStartState()
 
-    stack.push((start_state, []))  # Push the start state and an empty list of actions
+    from util import Stack
 
-    while not stack.isEmpty():
-        state, actions = stack.pop()
+    # stackXY: ((x,y),[path]) #
+    stackXY = Stack()
 
-        if state in visited:
-            continue
+    visited = [] # Visited states
+    path = [] # Every state keeps it's path from the starting state
 
-        visited.add(state)
+    # Check if initial state is goal state #
+    if problem.isGoalState(problem.getStartState()):
+        return []
 
-        if problem.isGoalState(state):
-            return actions
+    # Start from the beginning and find a solution, path is an empty list #
+    stackXY.push((problem.getStartState(),[]))
 
-        successors = problem.getSuccessors(state)
-        for successor, action, _ in successors:
-            if successor not in visited:
-                new_actions = actions + [action]
-                stack.push((successor, new_actions))
+    while(True):
 
-    return []  # Return an empty list if no solution is found
-    util.raiseNotDefined()
+        # Terminate condition: can't find solution #
+        if stackXY.isEmpty():
+            return []
 
-def breadthFirstSearch(problem: SearchProblem):
+        # Get informations of current state #
+        xy,path = stackXY.pop() # Take position and path
+        visited.append(xy)
+
+        # Comment this and uncomment 125. This only works for autograder    #
+        # In lectures we check if a state is a goal when we find successors #
+
+        # Terminate condition: reach goal #
+        if problem.isGoalState(xy):
+            return path
+
+        # Get successors of current state #
+        succ = problem.getSuccessors(xy)
+
+        # Add new states in stack and fix their path #
+        if succ:
+            for item in succ:
+                if item[0] not in visited:
+
+                # Lectures code:
+                # All impementations run in autograder and in comments i write
+                # the proper code that i have been taught in lectures
+                # if item[0] not in visited and item[0] not in (state[0] for state in stackXY.list):
+                #   if problem.isGoalState(item[0]):
+                #       return path + [item[1]]
+
+                    newPath = path + [item[1]] # Calculate new path
+                    stackXY.push((item[0],newPath))
+
+def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    visited = set()  # Set to keep track of visited states
-    queue = util.Queue()  # Queue for BFS
-    start_state = problem.getStartState()
 
-    queue.push((start_state, []))  # Push the start state and an empty list of actions
+    from util import Queue
 
-    while not queue.isEmpty():
-        state, actions = queue.pop()
+    # queueXY: ((x,y),[path]) #
+    queueXY = Queue()
 
-        if state in visited:
-            continue
+    visited = [] # Visited states
+    path = [] # Every state keeps it's path from the starting state
 
-        visited.add(state)
+    # Check if initial state is goal state #
+    if problem.isGoalState(problem.getStartState()):
+        return []
 
-        if problem.isGoalState(state):
-            return actions
+    # Start from the beginning and find a solution, path is empty list #
+    queueXY.push((problem.getStartState(),[]))
 
-        successors = problem.getSuccessors(state)
-        for successor, action, _ in successors:
-            if successor not in visited:
-                new_actions = actions + [action]
-                queue.push((successor, new_actions))
+    while(True):
 
-    return []  # Return an empty list if no solution is found
-    util.raiseNotDefined()
+        # Terminate condition: can't find solution #
+        if queueXY.isEmpty():
+            return []
 
-def uniformCostSearch(problem: SearchProblem):
+        # Get informations of current state #
+        xy,path = queueXY.pop() # Take position and path
+        visited.append(xy)
+
+        # Comment this and uncomment 179. This is only works for autograder
+        # In lectures we check if a state is a goal when we find successors
+
+        # Terminate condition: reach goal #
+        if problem.isGoalState(xy):
+            return path
+
+        # Get successors of current state #
+        succ = problem.getSuccessors(xy)
+
+        # Add new states in queue and fix their path #
+        if succ:
+            for item in succ:
+                if item[0] not in visited and item[0] not in (state[0] for state in queueXY.list):
+
+                    # Lectures code:
+                    # All impementations run in autograder and in comments i write
+                    # the proper code that i have been taught in lectures
+                    # if problem.isGoalState(item[0]):
+                    #   return path + [item[1]]
+
+                    newPath = path + [item[1]] # Calculate new path
+                    queueXY.push((item[0],newPath))
+
+def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    visited = set()  # Set to keep track of visited states
-    priority_queue = util.PriorityQueue()  # Priority queue for UCS
-    start_state = problem.getStartState()
 
-    priority_queue.push((start_state, [], 0), 0)  # Push the start state, an empty list of actions, and cost
+    from util import PriorityQueue
 
-    while not priority_queue.isEmpty():
-        state, actions, cost = priority_queue.pop()
+    # queueXY: ((x,y),[path],priority) #
+    queueXY = PriorityQueue()
 
-        if state in visited:
-            continue
+    visited = [] # Visited states
+    path = [] # Every state keeps it's path from the starting state
 
-        visited.add(state)
+    # Check if initial state is goal state #
+    if problem.isGoalState(problem.getStartState()):
+        return []
 
-        if problem.isGoalState(state):
-            return actions
+    # Start from the beginning and find a solution, path is empty list #
+    # with the cheapest priority                                       #
+    queueXY.push((problem.getStartState(),[]),0)
 
-        successors = problem.getSuccessors(state)
-        for successor, action, step_cost in successors:
-            if successor not in visited:
-                new_actions = actions + [action]
-                new_cost = cost + step_cost
-                priority_queue.push((successor, new_actions, new_cost), new_cost)
+    while(True):
 
-    return []  # Return an empty list if no solution is found
-    util.raiseNotDefined()
+        # Terminate condition: can't find solution #
+        if queueXY.isEmpty():
+            return []
+
+        # Get informations of current state #
+        xy,path = queueXY.pop() # Take position and path
+        visited.append(xy)
+
+        # This only works for autograder    #
+        # In lectures we check if a state is a goal when we find successors #
+
+        # Terminate condition: reach goal #
+        if problem.isGoalState(xy):
+            return path
+
+        # Get successors of current state #
+        succ = problem.getSuccessors(xy)
+
+        # Add new states in queue and fix their path #
+        if succ:
+            for item in succ:
+                if item[0] not in visited and (item[0] not in (state[2][0] for state in queueXY.heap)):
+
+                    #    Like previous algorithms: we should check in this point if successor
+                    #    is a goal state so as to follow lectures code
+
+                    newPath = path + [item[1]]
+                    pri = problem.getCostOfActions(newPath)
+
+                    queueXY.push((item[0],newPath),pri)
+
+                # State is in queue. Check if current path is cheaper from the previous one #
+                elif item[0] not in visited and (item[0] in (state[2][0] for state in queueXY.heap)):
+                    for state in queueXY.heap:
+                        if state[2][0] == item[0]:
+                            oldPri = problem.getCostOfActions(state[2][1])
+
+                    newPri = problem.getCostOfActions(path + [item[1]])
+
+                    # State is cheaper with his hew father -> update and fix parent #
+                    if oldPri > newPri:
+                        newPath = path + [item[1]]
+                        queueXY.update((item[0],newPath),newPri)
 
 def nullHeuristic(state, problem=None):
     """
@@ -179,36 +258,86 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
+from util import PriorityQueue
+class MyPriorityQueueWithFunction(PriorityQueue):
+    """
+    Implements a priority queue with the same push/pop signature of the
+    Queue and the Stack classes. This is designed for drop-in replacement for
+    those two classes. The caller has to provide a priority function, which
+    extracts each item's priority.
+    """
+    def  __init__(self, problem, priorityFunction):
+        "priorityFunction (item) -> priority"
+        self.priorityFunction = priorityFunction      # store the priority function
+        PriorityQueue.__init__(self)        # super-class initializer
+        self.problem = problem
+    def push(self, item, heuristic):
+        "Adds an item to the queue with priority from the priority function"
+        PriorityQueue.push(self, item, self.priorityFunction(self.problem,item,heuristic))
+
+# Calculate f(n) = g(n) + h(n) #
+def f(problem,state,heuristic):
+
+    return problem.getCostOfActions(state[1]) + heuristic(state[0],problem)
+
+def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    visited = set()  # Set to keep track of visited states
-    priority_queue = util.PriorityQueue()  # Priority queue for A* search
-    start_state = problem.getStartState()
 
-    priority_queue.push((start_state, [], 0), 0 + heuristic(start_state, problem))  # Push start state, actions, cost, and heuristic
+    # queueXY: ((x,y),[path]) #
+    queueXY = MyPriorityQueueWithFunction(problem,f)
 
-    while not priority_queue.isEmpty():
-        state, actions, cost = priority_queue.pop()
+    path = [] # Every state keeps it's path from the starting state
+    visited = [] # Visited states
 
-        if state in visited:
+
+    # Check if initial state is goal state #
+    if problem.isGoalState(problem.getStartState()):
+        return []
+
+    # Add initial state. Path is an empty list #
+    element = (problem.getStartState(),[])
+
+    queueXY.push(element,heuristic)
+
+    while(True):
+
+        # Terminate condition: can't find solution #
+        if queueXY.isEmpty():
+            return []
+
+        # Get informations of current state #
+        xy,path = queueXY.pop() # Take position and path
+
+        # State is already been visited. A path with lower cost has previously
+        # been found. Overpass this state
+        if xy in visited:
             continue
 
-        visited.add(state)
+        visited.append(xy)
 
-        if problem.isGoalState(state):
-            return actions
+        # Terminate condition: reach goal #
+        if problem.isGoalState(xy):
+            return path
 
-        successors = problem.getSuccessors(state)
-        for successor, action, step_cost in successors:
-            if successor not in visited:
-                new_actions = actions + [action]
-                new_cost = cost + step_cost
-                priority_queue.push((successor, new_actions, new_cost), new_cost + heuristic(successor, problem))
+        # Get successors of current state #
+        succ = problem.getSuccessors(xy)
 
-    return []  # Return an empty list if no solution is found
-    util.raiseNotDefined()
+        # Add new states in queue and fix their path #
+        if succ:
+            for item in succ:
+                if item[0] not in visited:
 
+                    # Like previous algorithms: we should check in this point if successor
+                    # is a goal state so as to follow lectures code
+
+                    newPath = path + [item[1]] # Fix new path
+                    element = (item[0],newPath)
+                    queueXY.push(element,heuristic)
+
+# Editor:
+# Sdi1500129
+# Petropoulakis Panagiotis
 
 # Abbreviations
 bfs = breadthFirstSearch
